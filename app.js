@@ -30,6 +30,29 @@ const StorageCtrl = (() => {
         items = JSON.parse(localStorage.getItem('items'));
       }
       return items;
+    },
+    updateItemStorage: updatedItem => {
+      let items = JSON.parse(localStorage.getItem('items'));
+
+      items.forEach((item, index) => {
+        if (updatedItem.id === item.id) {
+          items.splice(index, 1, updatedItem);
+        }
+      });
+      localStorage.setItem('items', JSON.stringify(items));
+    },
+    deleteItemFromStorage: id => {
+      let items = JSON.parse(localStorage.getItem('items'));
+
+      items.forEach((item, index) => {
+        if (id === item.id) {
+          items.splice(index, 1);
+        }
+      });
+      localStorage.setItem('items', JSON.stringify(items));
+    },
+    clearItemsFromStorage: () => {
+      localStorage.removeItem('items');
     }
   }
 })();
@@ -41,7 +64,7 @@ const ItemCtrl = (() => {
     this.id = id;
     this.name = name;
     this.calories = calories;
-  };
+  }
 
   // Data Structure / State
   const data = {
@@ -372,6 +395,9 @@ const App = ((ItemCtrl, StorageCtrl, UICtrl) => {
     // Add total calories to UI
     UICtrl.showTotalCalories(totalCalories);
 
+    // Update local storage
+    StorageCtrl.updateItemStorage(updatedItem);
+
     UICtrl.clearEditState();
 
     e.preventDefault();
@@ -393,6 +419,9 @@ const App = ((ItemCtrl, StorageCtrl, UICtrl) => {
     // Add total calories to UI
     UICtrl.showTotalCalories(totalCalories);
 
+    // Delete from local storage
+    StorageCtrl.deleteItemFromStorage(currentItem.id);
+
     UICtrl.clearEditState();
 
     e.preventDefault();
@@ -411,6 +440,8 @@ const App = ((ItemCtrl, StorageCtrl, UICtrl) => {
     // Remove from UI
     UICtrl.removeItems();
 
+    // Clear from local storage
+    StorageCtrl.clearItemsFromStorage();
     // Hide UL
     UICtrl.hideList();
   }
@@ -424,7 +455,7 @@ const App = ((ItemCtrl, StorageCtrl, UICtrl) => {
       // Fetch items from data structure
       const items = ItemCtrl.getItems();
 
-      // check if any items
+      // Check if any items
       if (items.length === 0) {
         UICtrl.hideList();
       } else {
